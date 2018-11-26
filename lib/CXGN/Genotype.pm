@@ -35,17 +35,17 @@ has 'markerscores' => ( isa => 'HashRef',
 			is  => 'rw',
     );
 
-has 'rawscores' => (isa => 'HashRef',
-		    is => 'rw',
-    );
+#has 'rawscores' => (isa => 'HashRef',
+#		    is => 'rw',
+#    );
 
 has 'markers' => (isa => 'ArrayRef',
 		  is => 'rw',
     );
 
-has 'dosages' => (isa => 'HashRef',
-		  is => 'rw',
-    );
+#has 'dosages' => (isa => 'HashRef',
+#		  is => 'rw',
+#    );
 
 
 
@@ -88,8 +88,11 @@ sub from_json {
 }
 
 sub to_json { 
-
-
+    my $self = shift;
+    
+    my $json = JSON::Any->encode($self->markerscores());
+    
+    return $json;
 }
 
     
