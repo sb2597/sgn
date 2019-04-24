@@ -92,6 +92,7 @@ $locations
                                             <option value="xls_cross_accession">Excel (.xls) file with only accession names for parents</option>
                                             <option value="xls_cross_plot">Excel (.xls) file with accession and plot names for parents</option>
                                             <option value="xls_cross_plant">Excel (.xls) file with accession and plant names for parents</option>
+                                            <option value="intercross_csv">Intercross CSV file </option>
                                         </select>
                                     </div>
                                 </div>
@@ -174,6 +175,35 @@ $locations
                                                             <label class="col-sm-6 control-label">Select an XLS File: </label>
                                                             <div class="col-sm-6">
                                                                 <input type="file" name="xls_crosses_plants_file" id="xls_crosses_plants_file" encoding="multipart/form-data" />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id="intercross_csv_section" style="display:none">
+                                    <h3>You want to upload crosses from Intercross CSV file</h3>
+                                    <div class="well well-sm">
+                                        <div class="row">
+                                            <div class="col-sm-4">
+                                                <&| /page/explanation.mas, title=>'Template information' &>
+                                                    <p>
+                                                        <b>File format information</b>
+                                                        <br>
+                                                        <a id="intercross_csv_info_format">Spreadsheet format</a>
+                                                    </p>
+                                                </&>
+                                            </div>
+                                            <div class="col-sm-8">
+                                                <br/>
+                                                <div class="panel panel-default">
+                                                    <div class="panel-body">
+                                                        <div class="form-group">
+                                                            <label class="col-sm-6 control-label">Select an Intercross CSV File: </label>
+                                                            <div class="col-sm-6">
+                                                                <input type="file" name="intercross_csv_file" id="intercross_csv_file" encoding="multipart/form-data" />
                                                             </div>
                                                         </div>
                                                     </div>
