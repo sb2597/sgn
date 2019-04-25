@@ -71,6 +71,7 @@ sub upload_cross_file_POST : Args(0) {
     my $crosses_simple_upload = $c->req->upload('xls_crosses_simple_file');
     my $crosses_plots_upload = $c->req->upload('xls_crosses_plots_file');
     my $crosses_plants_upload = $c->req->upload('xls_crosses_plants_file');
+    my $intercross_csv_upload = $c->req->upload('intercross_csv_file');
     my $upload;
     my $upload_type;
     if ($crosses_plots_upload) {
@@ -85,6 +86,11 @@ sub upload_cross_file_POST : Args(0) {
     if ($crosses_simple_upload) {
         $upload = $crosses_simple_upload;
         $upload_type = 'CrossesSimpleExcel';
+    }
+
+    if ($intercross_csv_upload) {
+        $upload = $intercross_csv_upload;
+        $upload_type = 'IntercrossCSV';
     }
 
     my $prefix = $c->req->param('upload_prefix');
