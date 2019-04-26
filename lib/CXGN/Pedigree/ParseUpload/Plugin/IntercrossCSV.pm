@@ -107,7 +107,7 @@ sub _validate_with_plugin {
         } else {
             $columns[0] =~ s/^\s+|\s+$//g; #trim whitespace from front and end...
             $columns[8] =~ s/^\s+|\s+$//g; #trim whitespace from front and end...
-            my $cross_uniquename = join(':', $columns[0],$columns[8])
+            my $cross_uniquename = join(':', $columns[0],$columns[8]);
             $seen_uniquename{$cross_uniquename}++;
         }
     }
@@ -138,5 +138,79 @@ sub _validate_with_plugin {
     }
 
     return 1; #returns true if validation is passed
+
+}
+
+
+sub _parse_with_plugin {
+    my $self = shift;
+    my $filename = $self->get_filename();
+    my $schema = $self->get_chado_schema();
+    my $delimiter = ',';
+    my %parse_result;
+    my @error_messages;
+    my %errors;
+
+    my $csv = Text::CSV->new({ sep_char => ',' });
+
+    open(my $fh, '<', $filename)
+        or die "Could not open file '$filename' $!";
+
+    if (!$fh) {
+        push @error_messages, "Could not read file. Make sure it is a valid CSV file.";
+        $errors{'error_messages'} = \@error_messages;
+        $self->_set_parse_errors(\%errors);
+        return;
+    }
+
+    my $header_row = <$fh>;
+    my @header_columns;
+    if ($csv->parse($header_row)) {
+        @header_columns = $csv->fields();
+    } else {
+        push @error_messages, "Could not parse header row. Make sure it is a valid CSV file.";
+        $errors{'error_messages'} = \@error_messages;
+        $self->_set_parse_errors(\%errors);
+        return;
+    }
+
+    while ( my $row = <$fh> ){
+        my @columns;
+        if ($csv->parse($row)) {
+            @columns = $csv->fields();
+        } else {
+            push @error_messages, "Could not parse row $row.";
+            $errors{'error_messages'} = \@error_messages;
+            $self->_set_parse_errors(\%errors);
+            return;
+        }
+
+        $columns[0] =~ s/^\s+|\s+$//g; #trim whitespace from front and end...
+        $columns[8] =~ s/^\s+|\s+$//g; #trim whitespace from front and end...
+        my $cross_uniquename = join(':', $columns[0],$columns[8]);
+
+        my $cross_type = $columns[6];
+        my $female_parent = $columns[2];
+        my $male_parent = $columns[1];
+
+        my $pedigree =  Bio::GeneticRelationships::Pedigree->new(name=>$cross_uniquename, cross_type=>$cross_type);
+        if ($female_parent) {
+            my $female_parent_individual = Bio::GeneticRelationships::Individual->new(name => $female_parent);
+            $pedigree->set_female_parent($female_parent_individual);
+        }
+        if ($male_parent) {
+            my $male_parent_individual = Bio::GeneticRelationships::Individual->new(name => $male_parent);
+            $pedigree->set_male_parent($male_parent_individual);
+        }
+
+        push @pedigrees, $pedigree;
+
+    }
+
+    $parsed_result{'crosses'} = \@pedigrees;
+
+    $self->_set_parsed_data(\%parsed_result);
+
+    return 1;
 
 }
