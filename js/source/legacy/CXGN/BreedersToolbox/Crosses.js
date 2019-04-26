@@ -378,8 +378,11 @@ jQuery(document).ready(function($) {
             if (uploadFileXlsPlots === ''){
                 var uploadFileXlsPlants = $("#xls_crosses_plants_file").val();
                 if (uploadFileXlsPlants === '') {
-                    alert("Please select your file format and select a file");
-                    return;
+                    var uploadIntercrossCSV = $("#intercross_csv_file").val();
+                    if (uploadIntercrossCSV === '') {
+                        alert("Please select your file format and select a file");
+                        return;
+                    }
                 }
             }
         }

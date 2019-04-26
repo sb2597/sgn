@@ -5,6 +5,8 @@ use JSON;
 use Data::Dumper;
 use Text::CSV;
 use CXGN::List::Validate;
+use SGN::Model::Cvterm;
+
 
 sub _validate_with_plugin {
     my $self = shift;
@@ -147,9 +149,10 @@ sub _parse_with_plugin {
     my $filename = $self->get_filename();
     my $schema = $self->get_chado_schema();
     my $delimiter = ',';
-    my %parse_result;
+    my %parsed_result;
     my @error_messages;
     my %errors;
+    my @pedigrees;
 
     my $csv = Text::CSV->new({ sep_char => ',' });
 
