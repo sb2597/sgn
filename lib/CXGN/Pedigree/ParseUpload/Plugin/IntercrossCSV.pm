@@ -5,8 +5,6 @@ use JSON;
 use Data::Dumper;
 use Text::CSV;
 use CXGN::List::Validate;
-use SGN::Model::Cvterm;
-
 
 sub _validate_with_plugin {
     my $self = shift;
@@ -92,13 +90,13 @@ sub _validate_with_plugin {
             $seen_accessions{$columns[2]}++;
         }
 
-        if (!$columns[3] || $columns[3] eq ''){
-            push @error_messages, 'The fourth column must contain a person on row: '.$row;
-        }
+#        if (!$columns[3] || $columns[3] eq ''){
+#            push @error_messages, 'The fourth column must contain a person on row: '.$row;
+#        }
 
-        if (!$columns[4] || $columns[4] eq ''){
-            push @error_messages, 'The fifth column must contain a timestamp on row: '.$row;
-        }
+#        if (!$columns[4] || $columns[4] eq ''){
+#            push @error_messages, 'The fifth column must contain a timestamp on row: '.$row;
+#        }
 
         if (!$columns[6] || $columns[6] eq ''){
             push @error_messages, 'The seventh column must contain a cross_type on row: '.$row;
@@ -217,3 +215,5 @@ sub _parse_with_plugin {
     return 1;
 
 }
+
+1;
