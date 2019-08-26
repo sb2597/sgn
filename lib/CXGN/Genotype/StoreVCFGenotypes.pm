@@ -578,7 +578,7 @@ sub validate {
     if ($stock_type eq 'tissue_sample'){
         @missing_stocks = @{$validator->validate($schema,'tissue_samples',\@observation_unit_uniquenames_stripped)->{'missing'}};
     } elsif ($stock_type eq 'accession'){
-        @missing_stocks = @{$validator->validate($schema,'accessions',\@observation_unit_uniquenames_stripped)->{'missing'}, 0};
+        @missing_stocks = @{$validator->validate($schema,'accessions',\@observation_unit_uniquenames_stripped,0)->{'missing'}};
     } else {
         push @error_messages, "You can only upload genotype data for a tissue_sample OR accession (including synonyms)!"
     }
@@ -800,8 +800,12 @@ sub store_metadata {
     }
     $self->protocol_id($protocol_id);
 
+    my $accession_type_id = SGN::Model::Cvterm->get_cvterm_row($schema, 'accession', 'stock_type')->cvterm_id();
     my $tissue_sample_type_id = SGN::Model::Cvterm->get_cvterm_row($schema, 'tissue_sample', 'stock_type')->cvterm_id();
+    my $synonym_type_id = SGN::Model::Cvterm->get_cvterm_row($schema, 'stock_synonym', 'stock_property')->cvterm_id();
     $self->tissue_sample_type_id($tissue_sample_type_id);
+    $self->accession_type_id($accession_type_id);
+    $self->synonym_type_id($synonym_type_id);
 
     print STDERR "Generating stock synonym lookup table...\n";
     my %stock_lookup;
