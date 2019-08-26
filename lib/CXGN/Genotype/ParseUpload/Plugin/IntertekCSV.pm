@@ -175,20 +175,12 @@ sub _validate_with_plugin {
             push @missing_stocks_return, $_;
             print STDERR "WARNING! Observation unit name $_ not found for stock type $stock_type. You can pass an option to automatically create accessions.\n";
         } else {
-            my $stock = $schema->resultset("Stock::Stock")->search({
+            my $stock = $schema->resultset("Stock::Stock")->create({
                 organism_id => $organism_id,
                 name       => $_,
                 uniquename => $_,
-                type_id     => $accession_cvterm_id
+                type_id     => $accession_cvterm_id,
             });
-            if ($stock->count == 0) {
-                my $stock = $schema->resultset("Stock::Stock")->create({
-                    organism_id => $organism_id,
-                    name       => $_,
-                    uniquename => $_,
-                    type_id     => $accession_cvterm_id,
-                });
-            }
         }
     }
 
