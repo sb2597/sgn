@@ -10,6 +10,7 @@ sub validate {
     my $schema = shift;
     my $type = shift;
     my $list = shift;
+    my $exclude_obsolete = shift || 1;
 
     my $data;
 
@@ -17,7 +18,7 @@ sub validate {
 
     foreach my $p ($self->plugins()) {
         if ($type eq $p->name()) {
-	     $data = $p->validate($schema, $list, $self);
+	     $data = $p->validate($schema, $list, $self, $exclude_obsolete);
 	}
     }
     return $data;
