@@ -578,28 +578,7 @@ sub validate {
     if ($stock_type eq 'tissue_sample'){
         @missing_stocks = @{$validator->validate($schema,'tissue_samples',\@observation_unit_uniquenames_stripped)->{'missing'}};
     } elsif ($stock_type eq 'accession'){
-        @missing_stocks = @{$validator->validate($schema,'accessions',\@observation_unit_uniquenames_stripped)->{'missing'}};
-
-        my %all_names;
-        my $synonym_type_id = SGN::Model::Cvterm->get_cvterm_row($schema, 'stock_synonym', 'stock_property')->cvterm_id();
-	$self->synonym_type_id($synonym_type_id);
-        my $accession_type_id = SGN::Model::Cvterm->get_cvterm_row($schema, 'accession', 'stock_type')->cvterm_id();
-	$self->accession_type_id($accession_type_id);
-        my $q = "SELECT stock.stock_id, stock.uniquename, stockprop.value, stockprop.type_id FROM stock LEFT JOIN stockprop USING(stock_id) WHERE stock.type_id=$accession_type_id AND stock.is_obsolete = 'F';";
-        my $h = $schema->storage->dbh()->prepare($q);
-        $h->execute();
-        while (my ($stock_id, $uniquename, $synonym, $type_id) = $h->fetchrow_array()) {
-            $all_names{$uniquename}++;
-            if ($type_id) {
-                if ($type_id == $synonym_type_id) {
-                    #if (exists($all_names{$synonym})){
-                     #   my $previous_use = $all_names{$synonym};
-                     #   push @error_messages, "DATABASE PROBLEM: The synonym $synonym is being used in $previous_use AND $uniquename. PLEASE RESOLVE THIS NOW OR CONTACT US!";
-                    #}
-                    #$all_names{$synonym} = $uniquename;
-                }
-            }
-        }
+        @missing_stocks = @{$validator->validate($schema,'accessions',\@observation_unit_uniquenames_stripped)->{'missing'}, 0};
     } else {
         push @error_messages, "You can only upload genotype data for a tissue_sample OR accession (including synonyms)!"
     }
@@ -826,8 +805,7 @@ sub store_metadata {
 
     print STDERR "Generating stock synonym lookup table...\n";
     my %stock_lookup;
-    my %all_names;
-    my $q = "SELECT stock.stock_id, stock.uniquename, stockprop.value, stockprop.type_id FROM stock LEFT JOIN stockprop USING(stock_id) WHERE stock.type_id IN (".$self->accession_type_id().",".$self->tissue_sample_type_id().") AND stock.is_obsolete = 'F';";
+    my $q = "SELECT stock.stock_id, stock.uniquename, stockprop.value, stockprop.type_id FROM stock LEFT JOIN stockprop USING(stock_id) WHERE stock.type_id IN (".$self->accession_type_id().",".$self->tissue_sample_type_id().");";
     my $h = $schema->storage->dbh()->prepare($q);
     $h->execute();
 
@@ -841,7 +819,7 @@ sub store_metadata {
     }
 
     # Updates stock_lookup to have the genotypeprop_ids for samples previously saved in this protocol/project. Useful for when appending genotypes to the jsonb
-    my $q_g = "SELECT stock.stock_id, stock.uniquename, stockprop.value, stockprop.type_id, genotypeprop.genotypeprop_id FROM stock LEFT JOIN stockprop USING(stock_id) JOIN nd_experiment_stock USING(stock_id) JOIN nd_experiment_genotype USING(nd_experiment_id) JOIN genotypeprop ON(genotypeprop.genotype_id=nd_experiment_genotype.genotype_id AND genotypeprop.type_id=".$self->snp_vcf_cvterm_id.") JOIN nd_experiment_protocol USING(nd_experiment_id) JOIN nd_experiment_project USING(nd_experiment_id) WHERE stock.type_id IN (".$self->accession_type_id().",".$self->tissue_sample_type_id().") AND stock.is_obsolete = 'F' AND nd_protocol_id=$protocol_id AND project_id=$project_id;";
+    my $q_g = "SELECT stock.stock_id, stock.uniquename, stockprop.value, stockprop.type_id, genotypeprop.genotypeprop_id FROM stock LEFT JOIN stockprop USING(stock_id) JOIN nd_experiment_stock USING(stock_id) JOIN nd_experiment_genotype USING(nd_experiment_id) JOIN genotypeprop ON(genotypeprop.genotype_id=nd_experiment_genotype.genotype_id AND genotypeprop.type_id=".$self->snp_vcf_cvterm_id.") JOIN nd_experiment_protocol USING(nd_experiment_id) JOIN nd_experiment_project USING(nd_experiment_id) WHERE stock.type_id IN (".$self->accession_type_id().",".$self->tissue_sample_type_id().") AND nd_protocol_id=$protocol_id AND project_id=$project_id;";
     my $q_g_h = $schema->storage->dbh()->prepare($q_g);
     $q_g_h->execute();
     while (my ($stock_id, $uniquename, $synonym, $type_id, $genotypeprop_id) = $q_g_h->fetchrow_array()) {
