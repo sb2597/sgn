@@ -578,7 +578,7 @@ sub validate {
     if ($stock_type eq 'tissue_sample'){
         @missing_stocks = @{$validator->validate($schema,'tissue_samples',\@observation_unit_uniquenames_stripped)->{'missing'}};
     } elsif ($stock_type eq 'accession'){
-        @missing_stocks = @{$validator->validate($schema,'accessions',\@observation_unit_uniquenames_stripped,0)->{'missing'}};
+        @missing_stocks = @{$validator->validate($schema,'accessions',\@observation_unit_uniquenames_stripped,1)->{'missing'}};
     } else {
         push @error_messages, "You can only upload genotype data for a tissue_sample OR accession (including synonyms)!"
     }

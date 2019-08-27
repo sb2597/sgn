@@ -14,13 +14,13 @@ sub validate {
     my $self = shift;
     my $schema = shift;
     my $list = shift;
-    my $exclude_obsolete = shift;
+    my $include_obsolete = shift;
 
     my %all_names;
     my $synonym_type_id = SGN::Model::Cvterm->get_cvterm_row($schema, 'stock_synonym', 'stock_property')->cvterm_id();
     my $accession_type_id = SGN::Model::Cvterm->get_cvterm_row($schema, 'accession', 'stock_type')->cvterm_id();
 
-    my $include_obsolete_sql = $exclude_obsolete ? "AND stock.is_obsolete = 'F'" : "";
+    my $include_obsolete_sql = $include_obsolete ? "" : "AND stock.is_obsolete = 'F'";
 
     my $q = "SELECT stock.uniquename, stockprop.value, stockprop.type_id FROM stock LEFT JOIN stockprop USING(stock_id) WHERE stock.type_id=$accession_type_id $include_obsolete_sql;";
     my $h = $schema->storage->dbh()->prepare($q);
