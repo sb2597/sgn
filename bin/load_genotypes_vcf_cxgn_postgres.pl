@@ -41,6 +41,7 @@ load_genotypes_vcf_cxgn_postgres.pl - loading genotypes into cxgn databases, bas
  -x delete old genotypes for accessions that have new genotypes
  -a add accessions that are not in the database
  -z if sample names include an IGD number. sample names are in format 'sample_name:IGD_number'. The IGD number will be parsed and stored as a genotypeprop.
+ -Z if sample names include a lab number. sample names are in format 'sample_name.lab_number'.
  -t Test run . Rolling back at the end.
  -w in the case that you have uploaded a normal VCF and you do not want to transpose it (because the transposition is memory intensive), use this flag
  -A accept warnings and continue with the storing. warnings are whether the samples already have genotype scores for a specific protocol/project
@@ -81,9 +82,9 @@ use File::Basename qw | basename dirname|;
 use CXGN::Genotype::Protocol;
 use CXGN::Genotype::ParseUpload;
 
-our ($opt_H, $opt_D, $opt_U, $opt_c, $opt_o, $opt_r, $opt_i, $opt_t, $opt_p, $opf_f, $opt_y, $opt_g, $opt_a, $opt_x, $opt_v, $opt_m, $opt_k, $opt_l, $opt_q, $opt_z, $opt_u, $opt_b, $opt_n, $opt_e, $opt_f, $opt_d, $opt_h, $opt_j, $opt_w, $opt_A, $opt_B);
+our ($opt_H, $opt_D, $opt_U, $opt_c, $opt_o, $opt_r, $opt_i, $opt_t, $opt_p, $opf_f, $opt_y, $opt_g, $opt_a, $opt_x, $opt_v, $opt_m, $opt_k, $opt_l, $opt_q, $opt_z, $opt_u, $opt_b, $opt_n, $opt_e, $opt_f, $opt_d, $opt_h, $opt_j, $opt_w, $opt_A, $opt_B, $opt_Z);
 
-getopts('H:U:i:r:u:c:o:tD:p:y:g:axsm:k:l:q:zf:d:b:n:e:h:j:wAB:');
+getopts('H:U:i:r:u:c:o:tD:p:y:g:axsm:k:l:q:zf:d:b:n:e:h:j:wAB:Z');
 
 if (!$opt_H || !$opt_U || !$opt_D || !$opt_c || !$opt_i || !$opt_p || !$opt_y || !$opt_m || !$opt_k || !$opt_l || !$opt_q || !$opt_r || !$opt_u || !$opt_f || !$opt_d || !$opt_b || !$opt_n || !$opt_e || !$opt_B) {
     pod2usage(-verbose => 2, -message => "Must provide options -H (hostname), -D (database name), -U (database username), -c VCF file type (transposedVCF or VCF), -i (input file), -r (archive path), -p (project name), -y (project year), -l (location name of project), -m (protocol name), -k (protocol description), -q (organism species), -u (database username), -f (reference genome name), -d (project description), -b (observation unit type name), -n (genotype facility name), -e (breeding program name), -B (temp file where SQL COPY is written)\n");
@@ -109,6 +110,10 @@ if ($opt_a){
 my $include_igd_numbers = 0;
 if ($opt_z){
     $include_igd_numbers = 1;
+}
+my $include_lab_numbers = 0;
+if ($opt_Z){
+    $include_lab_numbers = 1;
 }
 
 print "Password for $opt_H / $opt_D: \n";
@@ -236,7 +241,8 @@ my $parser = CXGN::Genotype::ParseUpload->new({
     observation_unit_type_name => $obs_type,
     organism_id => $organism_id,
     create_missing_observation_units_as_accessions => $add_accessions,
-    igd_numbers_included => $include_igd_numbers
+    igd_numbers_included => $include_igd_numbers,
+    lab_numbers_included => $include_lab_numbers
 });
 
 $parser->load_plugin($opt_c);
@@ -267,6 +273,7 @@ my $store_args = {
     protocol_name => $opt_m,
     organism_id=>$organism_id,
     igd_numbers_included=>$include_igd_numbers,
+    lab_numbers_included=>$include_lab_numbers,
     user_id=>$sp_person_id,
     archived_filename=>$archived_filename_with_path,
     archived_file_type=>'genotype_vcf', #can be 'genotype_vcf' or 'genotype_dosage' to disntiguish genotyprop between old dosage only format and more info vcf format
