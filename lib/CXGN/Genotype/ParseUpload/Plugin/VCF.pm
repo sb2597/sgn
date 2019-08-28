@@ -162,19 +162,12 @@ sub _validate_with_plugin {
     print STDERR "Number observation units: $number_observation_units...\n";
 
     my @observation_units_names_trim;
-    if ($self->get_igd_numbers_included){
-        foreach (@observation_unit_names) {
-            my ($observation_unit_name_with_accession_name, $igd_number) = split(/:/, $_);
-            my ($observation_unit_name, $accession_name) = split(/\|\|\|/, $observation_unit_name_with_accession_name);
-            push @observation_units_names_trim, $observation_unit_name;
-        }
-    } else {
-        foreach (@observation_unit_names) {
-            my ($observation_unit_name, $accession_name) = split(/\|\|\|/, $_);
-            push @observation_units_names_trim, $observation_unit_name;
+    foreach (@observation_unit_names) {
+        my $return = CXGN::Genotype::ParseUpload::sample_name_to_observation_unit_name($_, $self->get_igd_numbers_included, $self->get_lab_numbers_included);
+        if ($return->{observation_unit_name}) {
+            push @observation_units_names_trim, $return->{observation_unit_name};
         }
     }
-    my $observation_unit_names = \@observation_units_names_trim;
 
     my $organism_id = $self->get_organism_id;
     my $accession_cvterm_id = SGN::Model::Cvterm->get_cvterm_row($schema, 'accession', 'stock_type')->cvterm_id();
@@ -183,9 +176,9 @@ sub _validate_with_plugin {
     my @missing_stocks;
     my $validator = CXGN::List::Validate->new();
     if ($stock_type eq 'tissue_sample'){
-        @missing_stocks = @{$validator->validate($schema,'tissue_samples',$observation_unit_names)->{'missing'}};
+        @missing_stocks = @{$validator->validate($schema,'tissue_samples',\@observation_units_names_trim)->{'missing'}};
     } elsif ($stock_type eq 'accession'){
-        @missing_stocks = @{$validator->validate($schema,'accessions',$observation_unit_names,1)->{'missing'}};
+        @missing_stocks = @{$validator->validate($schema,'accessions',\@observation_units_names_trim,1)->{'missing'}};
     } else {
         push @error_messages, "You can only upload genotype data for a tissue_sample OR accession (including synonyms)!"
     }

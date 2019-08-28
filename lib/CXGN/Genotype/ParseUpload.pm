@@ -54,6 +54,12 @@ has 'igd_numbers_included' => (
     default => 0,
 );
 
+has 'lab_numbers_included' => (
+    isa => 'Bool',
+    is => 'ro',
+    default => 0,
+);
+
 has 'parse_errors' => (
     is => 'ro',
     isa => 'HashRef',
@@ -117,6 +123,48 @@ sub next {
     my $self = shift;
 
     return $self->next_genotype();
+}
+
+#CLASS method
+sub sample_name_to_observation_unit_name {
+    my $sample_name = shift;
+    my $include_igd_numbers = shift;
+    my $include_lab_numbers = shift;
+    #print STDERR Dumper [$sample_name, $include_igd_numbers, $include_lab_numbers];
+    my $return;
+    my $observation_unit_name;
+    if ($include_igd_numbers){
+        my ($observation_unit_name_with_accession_name, $igd_number) = split(/:/, $sample_name, 2);
+        $observation_unit_name_with_accession_name =~ s/^\s+|\s+$//g;
+        my @observation_unit_name_and_accession_name = split(/\|\|\|/, $observation_unit_name_with_accession_name);
+        $observation_unit_name = $observation_unit_name_and_accession_name[0];
+        $return = {
+            observation_unit_name => $observation_unit_name,
+            igd_number => $igd_number
+        };
+    }
+    elsif ($include_lab_numbers){
+        my ($observation_unit_name_with_accession_name, $lab_number) = split(/\./, $_, 2);
+        $observation_unit_name_with_accession_name =~ s/^\s+|\s+$//g;
+        my @observation_unit_name_and_accession_name = split(/\|\|\|/, $observation_unit_name_with_accession_name);
+        $observation_unit_name = $observation_unit_name_and_accession_name[0];
+        $return = {
+            observation_unit_name => $observation_unit_name,
+            lab_number => $lab_number
+        };
+    }
+    else {
+        my @observation_unit_name_and_accession_name = split(/\|\|\|/, $_);
+        $observation_unit_name = $observation_unit_name_and_accession_name[0];
+        $return = {
+            observation_unit_name => $observation_unit_name
+        };
+    }
+    if (!$observation_unit_name) {
+        $return->{warning} = "No observation unit name found for $sample_name! You can ignore this warning and skip this sample in the loading.";
+    }
+    #print STDERR Dumper $return;
+    return $return;
 }
 
 1;
