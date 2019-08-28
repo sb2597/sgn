@@ -38,13 +38,13 @@ load_genotypes_vcf_cxgn_postgres.pl - loading genotypes into cxgn databases, bas
  -j protocol_id (Will associate genotype data to an existing nd_protocol_id)
 
   FLAGS
- -x delete old genotypes for accessions that have new genotypes
+ -x delete old genotypes for accessions that have new genotypes. NOT IMPLEMENTED
  -a add accessions that are not in the database
  -z if sample names include an IGD number. sample names are in format 'sample_name:IGD_number'. The IGD number will be parsed and stored as a genotypeprop.
  -Z if sample names include a lab number. sample names are in format 'sample_name.lab_number'.
  -t Test run . Rolling back at the end.
  -w in the case that you have uploaded a normal VCF and you do not want to transpose it (because the transposition is memory intensive), use this flag
- -A accept warnings and continue with the storing. warnings are whether the samples already have genotype scores for a specific protocol/project
+ -A accept warnings and continue with the storing. warnings are whether the samples already have genotype scores for a specific protocol/project and whether to skip samples that have non-existent sample names e.g. ""
 
 =head1 DESCRIPTION
 This script loads genotype data into the Chado genotype table it encodes the genotype + marker name in a json format in the genotyope.uniquename field for easy parsing by a Perl program. The genotypes are linked to the relevant stock using nd_experiment_genotype. Each column in the spreadsheet, which represents a single accession (stock) is stored as a single genotype entry and linked to the stock via nd_experiment_genotype. Stock names are stored in the stock table if cannot be found, and linked to a population stock with the name supplied in opt_g. Map details (chromosome, position, ref, alt, qual, filter, info, and format) are stored in json format in the protocolprop table.
