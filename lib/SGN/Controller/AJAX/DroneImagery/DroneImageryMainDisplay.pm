@@ -139,6 +139,12 @@ sub raw_drone_imagery_summary_GET : Args(0) {
             else {
                 $drone_run_html .= '<div class="row"><div class="col-sm-5"><b>Growing Degree Days</b>:</div><div class="col-sm-7"><button class="btn btn-default btn-sm" name="drone_imagery_drone_run_calculate_gdd" data-drone_run_project_id="'.$k.'" data-field_trial_id="'.$v->{trial_id}.'">Calculate</button></div></div>';
             }
+            if ($v->{drone_run_averaged_precipitation}) {
+                $drone_run_html .= '<div class="row"><div class="col-sm-5"><b>Averaged Precipitation</b>:</div><div class="col-sm-7">'.$v->{drone_run_averaged_temperature_gdd}.'</div></div>';
+            }
+            else {
+                $drone_run_html .= '<div class="row"><div class="col-sm-5"><b>Averaged Precipitation</b>:</div><div class="col-sm-7"><button class="btn btn-default btn-sm" name="drone_imagery_drone_run_calculate_precipitation" data-drone_run_project_id="'.$k.'" data-field_trial_id="'.$v->{trial_id}.'">Calculate</button></div></div>';
+            }
             $drone_run_html .= '<div class="row"><div class="col-sm-5"><b>Growing Season Days</b>:</div><div class="col-sm-7">'.$v->{drone_run_related_time_cvterm_json}->{day}.'</div></div>';
             $drone_run_html .= '<div class="row"><div class="col-sm-5"><b>Field Trial</b>:</div><div class="col-sm-7"><a href="/breeders_toolbox/trial/'.$v->{trial_id}.'" _target="blank">'.$v->{trial_name}.'</a></div></div>';
             $drone_run_html .= '</div><div class="col-sm-3">';
